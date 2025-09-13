@@ -1,0 +1,12 @@
+# Build
+**/dist/
+**/node_modules/
+*.tsbuildinfo
+
+# pnpm
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
+# TypeScript
+tsconfig.json
+tsconfig.node.json
