@@ -26,7 +26,7 @@ function formatMissingCell(value: CellValue): string {
   return String(value);
 }
 
-export const DataTable: FC<Props> = ({ data, className }) => {
+const DataTable: FC<Props> = ({ data, className }) => {
   const { headers, rows } = data;
 
   const colCount = useMemo(() => {
