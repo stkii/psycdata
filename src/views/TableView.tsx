@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { invoke } from '@tauri-apps/api/core';
 import { open } from '@tauri-apps/plugin-dialog';
-
+import tauriIPC from '../bridge';
 import DataTable, { type ParsedTable } from '../components/DataTable';
 
 const TableView = () => {
@@ -28,7 +27,7 @@ const TableView = () => {
       setSheetNames(null);
       setSelectedSheet('');
 
-      const names = await invoke<string[]>('list_sheets', { path });
+      const names = await tauriIPC.listSheets(path);
       setSheetNames(names);
     } catch (error) {
       setTable(null);
@@ -44,10 +43,7 @@ const TableView = () => {
     try {
       setError(null);
       setLoading(true);
-      const result = await invoke<ParsedTable>('parse_excel', {
-        path: filePath,
-        sheet: selectedSheet,
-      });
+      const result = await tauriIPC.parseExcel(filePath, selectedSheet);
       setTable(result);
     } catch (e) {
       setTable(null);
