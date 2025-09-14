@@ -67,10 +67,10 @@ const TableView = () => {
   }
 
   return (
-    <main className="container">
+    <main className="table-view-container">
       <h1>データビューア（開発中）</h1>
 
-      <div className="controls">
+      <div className="table-view-controls">
         <button onClick={pickFile} disabled={loading}>
           {filePath ? '別のファイルを選択' : 'ファイルを選択'}
         </button>

@@ -1,0 +1,53 @@
+/* ========================================= */
+
+/* DataTable */
+
+.table-wrap {
+  background: #FFFFFF;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  margin: 10px auto;
+  max-width: calc(100vw - 48px);
+  max-height: 70vh;
+  overflow: auto;
+}
+
+table.data-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: max(600px, 100%);
+  width: max-content;
+}
+
+table.data-table th,
+table.data-table td {
+  border-bottom: 1px solid #EEEEEE;
+  border-right: 1px solid #F3F3F3;
+  font-size: 14px;
+  padding: 6px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+table.data-table th.rownum,
+table.data-table td.rownum {
+  color: #666666;
+  min-width: 64px;
+  text-align: right;
+  width: 64px;
+}
+
+table.data-table th {
+  background: #FAFAFA;
+  border-bottom: 1px solid #DDDDDD;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.muted {
+  color: #666666;
+}
+
+/* ========================================= */
