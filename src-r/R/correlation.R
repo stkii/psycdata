@@ -54,8 +54,8 @@ CorrTest <- function(x, method="pearson", use="all.obs", alternative="two.sided"
     # Special handling for infinite values (perfect correlation, etc.)
     if (!is.finite(t_val)) {
       if (alt == "two.sided") return(0)                     # Two-sided test: p = 0
-      if (alt == "greater") return(ifelse(t_val > 0, 0, 1))  # Right-sided test
-      if (alt == "less") return(ifelse(t_val < 0, 0, 1))     # Left-sided test
+      if (alt == "greater") return(ifelse(t_val > 0, 0, 1)) # Right-sided test
+      if (alt == "less") return(ifelse(t_val < 0, 0, 1))    # Left-sided test
     }
 
     # Calculate p-value using the t-distribution
@@ -114,7 +114,7 @@ CorrTest <- function(x, method="pearson", use="all.obs", alternative="two.sided"
             if (abs(r) < 1) {
               t_val <- r * sqrt((n - 2) / (1 - r^2))
             } else {
-                t_val <- sign(r) * Inf
+              t_val <- sign(r) * Inf
             }
           }
         }
