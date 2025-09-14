@@ -41,14 +41,16 @@ export const DataTable: FC<Props> = ({ data, className }) => {
     <div className={`table-wrap ${className ?? ''}`.trim()}>
       <table className="data-table">
         <thead>
-          <th className="rownum" key="rownum">
-            {/* 行番号列のヘッダー（空欄）*/}
-          </th>
-          {displayHeaders.map((h, idx) => (
-            <th key={idx} title={h}>
-              {h} {/* 列ヘッダーを表示 */}
+          <tr>
+            <th className="rownum" key="rownum">
+              {/* 行番号列のヘッダー（空欄）*/}
             </th>
-          ))}
+            {displayHeaders.map((h, idx) => (
+              <th key={idx} title={h}>
+                {h} {/* データ列のヘッダーを表示 */}
+              </th>
+            ))}
+          </tr>
         </thead>
         <tbody>
           {rows.length === 0 ? (
