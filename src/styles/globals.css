@@ -1,0 +1,36 @@
+:root {
+  background-color: #F6F6F6;
+  color: #0F0F0F;
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  font-synthesis: none;
+  line-height: 24px;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+}
+
+a {
+  color: #646CFF;
+  font-weight: 500;
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: #535BF2;
+}
+
+h1 {
+  text-align: center;
+}
+
+button:hover {
+  border-color: #396CD8;
+}
+
+button:active {
+  background-color: #E8E8E8;
+  border-color: #396CD8;
+}
+

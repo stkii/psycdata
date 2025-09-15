@@ -59,3 +59,130 @@ table.data-table th {
   text-align: center;
   text-align-last: center;
 }
+
+/* ========================================= */
+
+/* Variable Selector (分析 変数選択パネル) */
+
+.varsel {
+  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.varsel__wrap {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+}
+
+.varsel__search {
+  display: flex;
+}
+
+.varsel__searchInput {
+  background: #FFFFFF;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  padding: 8px 10px;
+  width: 100%;
+}
+
+.varsel__cols {
+  align-items: stretch;
+  display: flex;
+  gap: 16px;
+  height: 66vh; /* 約 2/3 画面の目安 */
+}
+
+.varsel__panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 260px;
+}
+
+.varsel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.varsel__label {
+  color: #444444;
+  font-size: 12px;
+}
+
+.varsel__select {
+  background: #FFFFFF;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  min-width: 240px;
+}
+
+.varsel__items {
+  background: #FFFFFF;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  height: 100%;
+  min-height: 180px;
+  overflow: auto;
+  padding: 6px 8px;
+}
+
+.varsel__item {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  padding: 2px 4px;
+}
+
+.varsel__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.varsel__buttons {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+.varsel__side {
+  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.varsel__footer {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* ========================================= */
+/* DataTable editing styles (active cell, inline editor) */
+
+table.data-table td.active {
+  background: #F0F7FF;
+  outline: 2px solid #4C9FFE;
+  outline-offset: -2px;
+}
+
+table.data-table td.active.editing {
+  background: #E6F2FF;
+}
+
+table.data-table input.cell-editor {
+  background: transparent;
+  border: none;
+  font: inherit;
+  outline: none;
+  width: 100%;
+}

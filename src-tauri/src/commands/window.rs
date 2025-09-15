@@ -25,15 +25,15 @@ pub fn open_or_reuse_window(
                 if let Some(data) = payload {
                     win.emit("result:load", data).map_err(|e| e.to_string())?;
                 }
-            }
+            },
             "panel" => {
                 if let Some(data) = payload {
                     win.emit("panel:load", data).map_err(|e| e.to_string())?;
                 }
-            }
+            },
             _ => {
                 // 他ラベル向けの既存更新イベントが必要ならここに追加
-            }
+            },
         }
         return Ok(());
     }
@@ -44,20 +44,20 @@ pub fn open_or_reuse_window(
         "result" => {
             builder = builder.title("PsycData - (Result Viewer)");
             builder = builder.inner_size(1920.0, 1080.0);
-        }
+        },
         "panel" => {
             builder = builder.title("PsycData - (Analysis Panel)");
             builder = builder.inner_size(960.0, 720.0);
-        }
+        },
         "table" => {
             builder = builder.title("PsycData - (Table Viewer)");
             builder = builder.inner_size(1920.0, 1080.0);
-        }
+        },
         _ => {
             // デフォルト: ラベルをタイトルに、一般的なサイズ
             builder = builder.title(label.clone());
             builder = builder.inner_size(1280.0, 800.0);
-        }
+        },
     }
 
     builder.build().map_err(|e| e.to_string())?;

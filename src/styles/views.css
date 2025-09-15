@@ -7,6 +7,14 @@
   text-align: center;
 }
 
+/* Analysis panels: prevent outer scroll; keep lists scrolling inside */
+.analysis-panel-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
 .table-view-controls {
   display: flex;
   gap: 8px;

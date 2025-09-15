@@ -4,10 +4,14 @@ node_modules/
 *.tsbuildinfo
 
 # Dev
+dev/misc/
 dev/snippets/
 
 # Docs
 docs/llms-txt/
+
+# Editor
+.cursor/
 
 # Environment
 .env
