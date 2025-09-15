@@ -51,3 +51,11 @@ table.data-table th {
 }
 
 /* ========================================= */
+
+/* Minimal button-like look for analysis select */
+.analysis-select {
+  appearance: none;
+  cursor: pointer;
+  text-align: center;
+  text-align-last: center;
+}

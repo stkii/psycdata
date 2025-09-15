@@ -21,14 +21,19 @@ pub fn open_or_reuse_window(
         let _ = win.set_focus();
         // ラベルに応じて既存ウィンドウへイベント通知（フロントは固定イベント名をlisten）
         match label.as_str() {
-            "analysis" => {
+            "result" => {
                 if let Some(data) = payload {
-                    win.emit("analysis:load", data).map_err(|e| e.to_string())?;
+                    win.emit("result:load", data).map_err(|e| e.to_string())?;
                 }
-            },
+            }
+            "panel" => {
+                if let Some(data) = payload {
+                    win.emit("panel:load", data).map_err(|e| e.to_string())?;
+                }
+            }
             _ => {
                 // 他ラベル向けの既存更新イベントが必要ならここに追加
-            },
+            }
         }
         return Ok(());
     }
@@ -36,19 +41,23 @@ pub fn open_or_reuse_window(
     // 新規作成時のウィンドウ属性はラベルで決定
     let mut builder = WebviewWindowBuilder::new(&handle, &label, WebviewUrl::App(url.into()));
     match label.as_str() {
-        "analysis" => {
-            builder = builder.title("PsycData - (Analysis Viewer)");
+        "result" => {
+            builder = builder.title("PsycData - (Result Viewer)");
             builder = builder.inner_size(1920.0, 1080.0);
-        },
+        }
+        "panel" => {
+            builder = builder.title("PsycData - (Analysis Panel)");
+            builder = builder.inner_size(960.0, 720.0);
+        }
         "table" => {
             builder = builder.title("PsycData - (Table Viewer)");
             builder = builder.inner_size(1920.0, 1080.0);
-        },
+        }
         _ => {
             // デフォルト: ラベルをタイトルに、一般的なサイズ
             builder = builder.title(label.clone());
             builder = builder.inner_size(1280.0, 800.0);
-        },
+        }
     }
 
     builder.build().map_err(|e| e.to_string())?;

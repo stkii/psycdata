@@ -31,9 +31,10 @@ export default defineConfig(async () => ({
   },
   build: {
     plugins: [react()],
-    rollupOptions: {
+      rollupOptions: {
       input: {
-        analysis: resolve(__dirname, 'src-tauri/assets/html/analysis.html'),
+        panel: resolve(__dirname, 'src-tauri/assets/html/panel.html'),
+        result: resolve(__dirname, 'src-tauri/assets/html/result.html'),
         table: resolve(__dirname, 'src-tauri/assets/html/table.html'),
       },
       output: {
