@@ -13,7 +13,8 @@
     "windows": [
       {
         "label": "table",
-        "title": "psycdata",
+        "url": "src-tauri/assets/html/table.html",
+        "title": "PsycData - (Table Viewer)",
         "width": 1920,
         "height": 1080
       }
