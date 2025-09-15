@@ -1,4 +1,4 @@
-import TableView from './views/TableView';
+import TableView from './views/table/TableView';
 import './styles/components.css';
 import './styles/views.css';
 import './App.css';
