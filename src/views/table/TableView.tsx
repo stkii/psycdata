@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { open } from '@tauri-apps/plugin-dialog';
 import tauriIPC from '../../bridge';
 import DataTable, { type ParsedTable } from '../../components/DataTable';
+import AnalysisMenuButton from '../../components/AnalysisMenuButton';
 
 const TableView = () => {
   const [error, setError] = useState<string | null>(null);
@@ -10,22 +11,6 @@ const TableView = () => {
   const [selectedSheet, setSelectedSheet] = useState<string>('');
   const [sheetNames, setSheetNames] = useState<string[] | null>(null);
   const [table, setTable] = useState<ParsedTable | null>(null);
-  // 分析ビュー（別ウィンドウ）を開く
-  async function openAnalysis() {
-    if (!filePath || !selectedSheet) return;
-    try {
-      setError(null);
-      const url = `src-tauri/assets/html/analysis.html?path=${encodeURIComponent(
-        filePath
-      )}&sheet=${encodeURIComponent(selectedSheet)}`;
-      await tauriIPC.openOrReuseWindow('analysis', url, {
-        path: filePath,
-        sheet: selectedSheet,
-      });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
-    }
-  }
   async function pickFile() {
     try {
       setError(null);
@@ -105,9 +90,11 @@ const TableView = () => {
             <button onClick={loadSelectedSheet} disabled={!selectedSheet || loading}>
               読み込む
             </button>
-            <button onClick={openAnalysis} disabled={!selectedSheet || loading}>
-              分析
-            </button>
+            <AnalysisMenuButton
+              disabled={!selectedSheet || loading}
+              filePath={filePath}
+              sheet={selectedSheet}
+            />
           </>
         )}
         {(filePath || table) && (

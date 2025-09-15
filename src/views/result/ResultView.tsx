@@ -5,7 +5,7 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 
 function useQuery() {
   return useMemo(() => {
-    // analysis.html では search を優先。hash パラメータにも後方互換で対応。
+    // result.html では search を優先。hash パラメータにも後方互換で対応。
     const search = window.location.search || '';
     if (search) return new URLSearchParams(search);
     const hash = window.location.hash || '';
@@ -14,7 +14,7 @@ function useQuery() {
   }, []);
 }
 
-export default function AnalysisView() {
+export default function ResultView() {
   const query = useQuery();
   const path = query.get('path') || '';
   const sheet = query.get('sheet') || '';
@@ -43,13 +43,13 @@ export default function AnalysisView() {
     };
   }, [path, sheet]);
 
-  // イベントでの更新（analysis:load）に対応
+  // イベントでの更新（result:load）に対応
   useEffect(() => {
     const win = getCurrentWebviewWindow();
     let unlisten: (() => void) | null = null;
     (async () => {
       unlisten = await win.listen<{ path: string; sheet: string; analysis?: string }>(
-        'analysis:load',
+        'result:load',
         async (ev) => {
           const p = ev.payload?.path;
           const s = ev.payload?.sheet;
@@ -75,7 +75,7 @@ export default function AnalysisView() {
 
   return (
     <main className="container">
-      <h1>分析ビュー（MVP）</h1>
+      <h1>結果ビュー（MVP）</h1>
       <p className="muted small">
         分析: {analysis} / シート: {sheet}
       </p>
@@ -93,4 +93,3 @@ export default function AnalysisView() {
     </main>
   );
 }
-

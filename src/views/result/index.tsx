@@ -1,11 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import AnalysisPanel from './AnalysisPanel';
+import ResultView from './ResultView';
 import '../../App.css';
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <AnalysisPanel />
+    <ResultView />
   </React.StrictMode>
 );
-
