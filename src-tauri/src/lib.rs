@@ -8,6 +8,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .invoke_handler(tauri::generate_handler![
+            commands::analysis::describe::run_descriptive_stats,
             commands::parse::list_sheets,
             commands::parse::parse_excel,
             commands::window::open_or_reuse_window,

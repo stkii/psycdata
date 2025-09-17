@@ -10,17 +10,16 @@ class TauriIPC {
     return await invoke('parse_excel', { path, sheet });
   }
 
-  // 汎用：ウィンドウを開く/再利用（Rust 側でタイトル・サイズ・イベントなどをラベルに応じて決定）
-  async openOrReuseWindow(
-    label: string,
-    url: string,
-    payload?: Record<string, unknown>
-  ): Promise<void> {
+  async openOrReuseWindow(label: string, url: string, payload?: Record<string, unknown>): Promise<void> {
     return await invoke('open_or_reuse_window', {
       label,
       url,
       payload,
     });
+  }
+
+  async runDescriptiveStats(path: string, sheet: string, variables: string[]): Promise<ParsedTable> {
+    return await invoke('run_descriptive_stats', { path, sheet, variables });
   }
 }
 

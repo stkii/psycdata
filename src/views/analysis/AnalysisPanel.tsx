@@ -60,7 +60,9 @@ const AnalysisPanel = () => {
             };
             const url = `src-tauri/assets/html/result.html?path=${encodeURIComponent(
               path
-            )}&sheet=${encodeURIComponent(sheet)}&analysis=${encodeURIComponent('descriptive')}`;
+            )}&sheet=${encodeURIComponent(sheet)}&analysis=${encodeURIComponent('descriptive')}&vars=${encodeURIComponent(
+              JSON.stringify(selected)
+            )}`;
             await tauriIPC.openOrReuseWindow('result', url, payload);
             const win = getCurrentWebviewWindow();
             await win.close();

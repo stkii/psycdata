@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import DataTable, { type ParsedTable } from '../../components/DataTable';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import tauriIPC from '../../bridge';
 
 function useQuery() {
   return useMemo(() => {
@@ -30,8 +31,28 @@ export default function ResultView() {
       try {
         setLoading(true);
         setError(null);
-        const result = await invoke<ParsedTable>('parse_excel', { path, sheet });
-        if (!cancelled) setTable(result);
+        if (analysis === 'descriptive') {
+          const varsParam = query.get('vars');
+          let vars: string[] = [];
+          if (varsParam) {
+            try {
+              vars = JSON.parse(varsParam);
+            } catch (_) {
+              // ignore parse error; will fall back
+            }
+          }
+          if (vars.length > 0) {
+            const result = await tauriIPC.runDescriptiveStats(path, sheet, vars);
+            if (!cancelled) setTable(result as unknown as ParsedTable);
+          } else {
+            // Fallback: just preview the sheet
+            const result = await invoke<ParsedTable>('parse_excel', { path, sheet });
+            if (!cancelled) setTable(result);
+          }
+        } else {
+          const result = await invoke<ParsedTable>('parse_excel', { path, sheet });
+          if (!cancelled) setTable(result);
+        }
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));
       } finally {
@@ -41,14 +62,19 @@ export default function ResultView() {
     return () => {
       cancelled = true;
     };
-  }, [path, sheet]);
+  }, [path, sheet, analysis, query]);
 
   // イベントでの更新（result:load）に対応
   useEffect(() => {
     const win = getCurrentWebviewWindow();
     let unlisten: (() => void) | null = null;
     (async () => {
-      unlisten = await win.listen<{ path: string; sheet: string; analysis?: string }>(
+      unlisten = await win.listen<{
+        path: string;
+        sheet: string;
+        analysis?: string;
+        variables?: string[];
+      }>(
         'result:load',
         async (ev) => {
           const p = ev.payload?.path;
@@ -57,8 +83,13 @@ export default function ResultView() {
           try {
             setLoading(true);
             setError(null);
-            const result = await invoke<ParsedTable>('parse_excel', { path: p, sheet: s });
-            setTable(result);
+            if (ev.payload?.analysis === 'descriptive' && Array.isArray(ev.payload?.variables)) {
+              const result = await tauriIPC.runDescriptiveStats(p, s, ev.payload.variables);
+              setTable(result as unknown as ParsedTable);
+            } else {
+              const result = await invoke<ParsedTable>('parse_excel', { path: p, sheet: s });
+              setTable(result);
+            }
           } catch (e) {
             setTable(null);
             setError(e instanceof Error ? e.message : String(e));

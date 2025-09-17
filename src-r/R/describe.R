@@ -31,3 +31,23 @@ Describe <- function(x, na.rm=TRUE){
 
   return (stats)
 }
+
+# Wrapper to return ParsedTable-compatible structure
+# Returns: list(headers=[..], rows=[[..], ...])
+DescribeParsed <- function(x, na.rm=TRUE){
+  stats <- Describe(x, na.rm=na.rm)
+
+  headers <- c("Variable", "Mean", "SD", "Min", "Max")
+  vars <- rownames(stats)
+  if (is.null(vars)) vars <- paste0("V", seq_len(nrow(stats)))
+
+  rows <- lapply(seq_len(nrow(stats)), function(i) {
+    c(vars[[i]],
+      unname(stats[i, "Mean"]),
+      unname(stats[i, "SD"]),
+      unname(stats[i, "Min"]),
+      unname(stats[i, "Max"]))
+  })
+
+  return(list(headers=headers, rows=rows))
+}
