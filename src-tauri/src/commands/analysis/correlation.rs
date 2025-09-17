@@ -35,4 +35,3 @@ pub async fn run_correlation(
     )?;
     Ok(table)
 }
-
