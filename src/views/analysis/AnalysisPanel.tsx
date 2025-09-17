@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import tauriIPC from '../../bridge';
 import DescriptiveStatsPanel from './DescriptiveStatsPanel';
+import CorrelationPanel from './CorrelationPanel';
 import FactorAnalysisPanel from './FactorAnalysisPanel';
 import ExecuteButton from '../../components/ExecuteButton';
 
@@ -61,6 +62,27 @@ const AnalysisPanel = () => {
             const url = `src-tauri/assets/html/result.html?path=${encodeURIComponent(
               path
             )}&sheet=${encodeURIComponent(sheet)}&analysis=${encodeURIComponent('descriptive')}&vars=${encodeURIComponent(
+              JSON.stringify(selected)
+            )}`;
+            await tauriIPC.openOrReuseWindow('result', url, payload);
+            const win = getCurrentWebviewWindow();
+            await win.close();
+          }}
+        />
+      ) : type === 'correlation' ? (
+        <CorrelationPanel
+          path={path}
+          sheet={sheet}
+          onConfirm={async (selected) => {
+            const payload: Record<string, unknown> = {
+              path,
+              sheet,
+              analysis: 'correlation',
+              variables: selected,
+            };
+            const url = `src-tauri/assets/html/result.html?path=${encodeURIComponent(
+              path
+            )}&sheet=${encodeURIComponent(sheet)}&analysis=${encodeURIComponent('correlation')}&vars=${encodeURIComponent(
               JSON.stringify(selected)
             )}`;
             await tauriIPC.openOrReuseWindow('result', url, payload);

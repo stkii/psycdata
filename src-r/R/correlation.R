@@ -152,3 +152,50 @@ CorrTest <- function(x, method="pearson", use="all.obs", alternative="two.sided"
 
   return (res)
 }
+
+# Wrapper to return ParsedTable-compatible structure for UI
+# - Shows an upper-triangular correlation matrix with significance stars
+# - headers: c("Variable", varnames)
+# - cells: diagonal = "1.000"; upper triangle = sprintf("%.3f%s", r, stars); lower triangle = ""
+CorrParsed <- function(x, method="pearson", use="pairwise.complete.obs", alternative="two.sided") {
+  res <- CorrTest(x, method=method, use=use, alternative=alternative)
+  corr <- res$corr
+  pval <- res$p
+
+  vars <- colnames(corr)
+  if (is.null(vars)) vars <- paste0("V", seq_len(ncol(corr)))
+
+  # Significance stars helper
+  stars_for_p <- function(p) {
+    if (is.na(p)) return("")
+    if (p < 0.001) return("***")
+    if (p < 0.01)  return("**")
+    if (p < 0.05)  return("*")
+    return("")
+  }
+
+  headers <- c("Variable", vars)
+  n <- length(vars)
+  rows <- lapply(seq_len(n), function(i) {
+    row_vals <- character(n + 1)
+    row_vals[[1]] <- vars[[i]]
+    for (j in seq_len(n)) {
+      if (j < i) {
+        row_vals[[j + 1]] <- ""                   # lower triangle blank
+      } else if (j == i) {
+        row_vals[[j + 1]] <- sprintf("%.3f", 1.0) # diagonal
+      } else {
+        r <- corr[i, j]
+        p <- pval[i, j]
+        if (is.na(r)) {
+          row_vals[[j + 1]] <- "NA"
+        } else {
+          row_vals[[j + 1]] <- paste0(sprintf("%.3f", r), stars_for_p(p))
+        }
+      }
+    }
+    row_vals
+  })
+
+  return(list(headers=headers, rows=rows))
+}

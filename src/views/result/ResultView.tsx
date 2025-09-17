@@ -49,6 +49,23 @@ export default function ResultView() {
             const result = await invoke<ParsedTable>('parse_excel', { path, sheet });
             if (!cancelled) setTable(result);
           }
+        } else if (analysis === 'correlation') {
+          const varsParam = query.get('vars');
+          let vars: string[] = [];
+          if (varsParam) {
+            try {
+              vars = JSON.parse(varsParam);
+            } catch (_) {
+              // ignore parse error
+            }
+          }
+          if (vars.length > 1) {
+            const result = await tauriIPC.runCorrelation(path, sheet, vars);
+            if (!cancelled) setTable(result as unknown as ParsedTable);
+          } else {
+            const result = await invoke<ParsedTable>('parse_excel', { path, sheet });
+            if (!cancelled) setTable(result);
+          }
         } else {
           const result = await invoke<ParsedTable>('parse_excel', { path, sheet });
           if (!cancelled) setTable(result);
@@ -85,6 +102,9 @@ export default function ResultView() {
             setError(null);
             if (ev.payload?.analysis === 'descriptive' && Array.isArray(ev.payload?.variables)) {
               const result = await tauriIPC.runDescriptiveStats(p, s, ev.payload.variables);
+              setTable(result as unknown as ParsedTable);
+            } else if (ev.payload?.analysis === 'correlation' && Array.isArray(ev.payload?.variables)) {
+              const result = await tauriIPC.runCorrelation(p, s, ev.payload.variables);
               setTable(result as unknown as ParsedTable);
             } else {
               const result = await invoke<ParsedTable>('parse_excel', { path: p, sheet: s });

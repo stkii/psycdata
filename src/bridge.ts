@@ -21,6 +21,10 @@ class TauriIPC {
   async runDescriptiveStats(path: string, sheet: string, variables: string[]): Promise<ParsedTable> {
     return await invoke('run_descriptive_stats', { path, sheet, variables });
   }
+
+  async runCorrelation(path: string, sheet: string, variables: string[]): Promise<ParsedTable> {
+    return await invoke('run_correlation', { path, sheet, variables });
+  }
 }
 
 const tauriIPC = new TauriIPC();

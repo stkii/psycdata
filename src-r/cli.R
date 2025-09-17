@@ -71,6 +71,13 @@ load_analysis <- function(name) {
     fn_name <- "DescribeParsed"
     if (!exists(fn_name) || !is.function(get(fn_name))) stop("DescribeParsed() not defined after sourcing")
     return(get(fn_name))
+  } else if (name == "correlation") {
+    src <- file.path(r_dir, "correlation.R")
+    if (!file.exists(src)) stop("correlation.R not found under src-r/R")
+    source(src, local = TRUE)
+    fn_name <- "CorrParsed"
+    if (!exists(fn_name) || !is.function(get(fn_name))) stop("CorrParsed() not defined after sourcing")
+    return(get(fn_name))
   }
   stop(paste0("Unknown analysis: ", name))
 }
