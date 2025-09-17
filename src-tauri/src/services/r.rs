@@ -1,4 +1,5 @@
-use std::collections::HashMap;
+use indexmap::IndexMap;
+use std::collections::HashSet;
 use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
@@ -56,7 +57,7 @@ pub fn build_numeric_dataset(
     path: &str,
     sheet: &str,
     variables: &[String],
-) -> Result<HashMap<String, Vec<Option<f64>>>, String> {
+) -> Result<IndexMap<String, Vec<Option<f64>>>, String> {
     if variables.is_empty() {
         return Err("変数が選択されていません".to_string());
     }
@@ -73,16 +74,46 @@ pub fn build_numeric_dataset(
         .map(|(i, cell)| header_from_cell(cell, i))
         .collect();
 
-    let mut indices: Vec<(String, usize)> = Vec::new();
+    // シート名が重複している場合はエラーを返す (ambiguous mapping)
+    {
+        let mut seen: HashSet<&str> = HashSet::new();
+        let mut dups: Vec<String> = Vec::new();
+        for h in headers.iter() {
+            let key = h.as_str();
+            if !seen.insert(key) {
+                if !dups.iter().any(|d| d == h) {
+                    dups.push(h.clone());
+                }
+            }
+        }
+        if !dups.is_empty() {
+            return Err(format!(
+                "シートのヘッダー（列名）が重複しています: {}",
+                dups.join(", ")
+            ));
+        }
+    }
+
+    // Validate all requested variables exist
     for v in variables {
-        if let Some(idx) = headers.iter().position(|h| h == v) {
-            indices.push((v.clone(), idx));
-        } else {
+        if !headers.iter().any(|h| h == v) {
             return Err(format!("変数 '{}' が見つかりません", v));
         }
     }
 
-    let mut dataset: HashMap<String, Vec<Option<f64>>> = HashMap::new();
+    // Build selection set for quick membership checks
+    let varset: HashSet<&str> = variables.iter().map(|s| s.as_str()).collect();
+
+    // Determine indices in the original Excel header order (not selection order)
+    let mut indices: Vec<(String, usize)> = Vec::new();
+    for (idx, name) in headers.iter().enumerate() {
+        if varset.contains(name.as_str()) {
+            indices.push((name.clone(), idx));
+        }
+    }
+
+    // Preserve insertion order of variables to keep UI order stable
+    let mut dataset: IndexMap<String, Vec<Option<f64>>> = IndexMap::new();
     for (name, idx) in indices.into_iter() {
         let mut col: Vec<Option<f64>> = Vec::new();
         for row in rows.iter().skip(1) {
@@ -137,7 +168,7 @@ fn find_cli_script() -> Option<PathBuf> {
 pub fn run_r_analysis_with_dataset(
     _handle: &AppHandle,
     analysis: &str,
-    dataset: &HashMap<String, Vec<Option<f64>>>,
+    dataset: &IndexMap<String, Vec<Option<f64>>>,
     _timeout: Duration,
 ) -> Result<ParsedTable, String> {
     // Serialize dataset to a temp JSON file

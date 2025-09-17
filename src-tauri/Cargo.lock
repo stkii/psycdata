@@ -2902,6 +2902,7 @@ name = "psycdata"
 version = "0.1.0-beta"
 dependencies = [
  "calamine",
+ "indexmap 2.11.1",
  "serde",
  "serde_json",
  "tauri",

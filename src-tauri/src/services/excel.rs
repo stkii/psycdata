@@ -10,6 +10,50 @@ use calamine::{
     Reader,
 };
 
+/// 先頭行のセルからヘッダー名を生成
+/// - 空白や空文字はトリムし、空なら「列n」で補完
+/// - 数値・真偽・その他も文字列化の上で空なら「列n」
+pub fn compute_headers_from_first_row(row0: &[Data]) -> Vec<String> {
+    row0.iter()
+        .enumerate()
+        .map(|(i, cell)| match cell {
+            Data::String(s) => {
+                let s = s.trim().to_string();
+                if s.is_empty() {
+                    format!("列{}", i + 1)
+                } else {
+                    s
+                }
+            },
+            Data::Float(f) => {
+                if let Some(n) = serde_json::Number::from_f64(*f) {
+                    n.to_string()
+                } else {
+                    format!("列{}", i + 1)
+                }
+            },
+            #[allow(deprecated)]
+            Data::Int(n) => n.to_string(),
+            Data::Bool(b) => {
+                if *b {
+                    "TRUE".to_string()
+                } else {
+                    "FALSE".to_string()
+                }
+            },
+            Data::Empty | Data::Error(_) => format!("列{}", i + 1),
+            other => {
+                let s = format!("{}", other);
+                if s.trim().is_empty() {
+                    format!("列{}", i + 1)
+                } else {
+                    s
+                }
+            },
+        })
+        .collect()
+}
+
 /// 指定パスの Excel からシート名一覧を取得
 /// 1枚も無い場合はエラー
 pub fn list_sheets(path: &str) -> Result<Vec<String>, String> {
@@ -44,46 +88,7 @@ pub fn rows_to_parsed_table(rows_data: Vec<Vec<Data>>) -> ParsedTable {
         };
     }
 
-    let headers: Vec<String> = rows_data[0]
-        .iter()
-        .enumerate()
-        .map(|(i, cell)| match cell {
-            Data::String(s) => {
-                let s = s.trim().to_string();
-                if s.is_empty() {
-                    format!("列{}", i + 1)
-                } else {
-                    s
-                }
-            },
-            Data::Float(f) => {
-                if let Some(n) = serde_json::Number::from_f64(*f) {
-                    n.to_string()
-                } else {
-                    format!("列{}", i + 1)
-                }
-            },
-            #[allow(deprecated)]
-            Data::Int(n) => n.to_string(),
-            Data::Bool(b) => {
-                if *b {
-                    "TRUE".to_string()
-                } else {
-                    "FALSE".to_string()
-                }
-            },
-            Data::Empty => format!("列{}", i + 1),
-            Data::Error(_) => format!("列{}", i + 1),
-            other => {
-                let s = format!("{}", other);
-                if s.trim().is_empty() {
-                    format!("列{}", i + 1)
-                } else {
-                    s
-                }
-            },
-        })
-        .collect();
+    let headers: Vec<String> = compute_headers_from_first_row(&rows_data[0]);
 
     let rows: Vec<Vec<serde_json::Value>> = rows_data
         .into_iter()
