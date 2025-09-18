@@ -26,3 +26,23 @@ CronbachAlpha <- function(x) {
 
   return(alpha)
 }
+
+# Wrapper: return ParsedTable-compatible structure for UI
+# - model: 'alpha' | 'omega'
+ReliabilityParsed <- function(x, model='alpha') {
+  # Coerce to data.frame matrix of numeric only
+  if (is.list(x) && !is.data.frame(x)) x <- as.data.frame(x)
+  if (!is.data.frame(x) && !is.matrix(x)) stop("x must be a data.frame or matrix")
+  is_num <- if (is.data.frame(x)) vapply(x, is.numeric, logical(1)) else rep(TRUE, ncol(x))
+  if (any(!is_num)) x <- x[, is_num, drop = FALSE]
+  if (ncol(x) < 2) stop("Need at least two numeric columns for reliability analysis")
+
+  headers <- c("Statistic", "Value")
+  if (identical(model, 'alpha')) {
+    val <- CronbachAlpha(as.matrix(x))
+    rows <- list(c("Cronbach's alpha", sprintf("%.3f", val)))
+  } else {
+    rows <- list(c("Omega", "未実装"))
+  }
+  return(list(headers=headers, rows=rows))
+}

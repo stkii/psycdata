@@ -18,7 +18,7 @@ const AnalysisMenuButton = ({ filePath, sheet, disabled }: Props) => {
       analysis
     )}&path=${encodeURIComponent(filePath)}&sheet=${encodeURIComponent(sheet)}`;
     await tauriIPC.openOrReuseWindow('panel', url, { path: filePath, sheet, analysis });
-    // reset selection to placeholder（制御コンポーネントで確実にクリア）
+    // ボタンの選択状態をリセット
     setSelection('');
   };
 
@@ -30,6 +30,7 @@ const AnalysisMenuButton = ({ filePath, sheet, disabled }: Props) => {
         </option>
         <option value="descriptive">記述統計</option>
         <option value="correlation">相関</option>
+        <option value="reliability">信頼性</option>
         <option value="regression">回帰</option>
         <option value="factor">因子</option>
         <option value="distance">距離</option>

@@ -5,11 +5,12 @@
 #   - Source R/<analysis>.R defining analysis functions (e.g., Describe)
 #   - Read JSON input, dispatch to analysis, write JSON to stdout
 #
-# Usage: cli.R <analysis> <input_json_path> [sort_code]
-# - analysis: e.g., 'descriptive'
+# Usage: cli.R <analysis> <input_json_path> [option3]
+# - analysis: e.g., 'descriptive', 'correlation', 'reliability'
 # - input_json_path: JSON file path (named list of numeric vectors; NA allowed)
-# - sort_code (optional): for descriptive output ordering; one of
-#     'default', 'mean_asc', 'mean_desc'
+# - option3 (optional):
+#     - descriptive: sort_code ('default'|'mean_asc'|'mean_desc')
+#     - reliability: model_code ('alpha'|'omega')
 #
 ## Note: jsonlite is required, but we attempt to activate renv first (below)
 
@@ -21,7 +22,7 @@ if (length(args_trailing) < 2) {
 analysis <- args_trailing[[1]]
 input_path <- args_trailing[[2]]
 if (!file.exists(input_path)) stop(paste0("Input file not found: ", input_path))
-sort_code <- if (length(args_trailing) >= 3) args_trailing[[3]] else NA_character_
+opt3 <- if (length(args_trailing) >= 3) args_trailing[[3]] else NA_character_
 
 # Resolve project root: env-var first, then script-relative
 resolve_script_path <- function() {
@@ -87,6 +88,13 @@ load_analysis <- function(name) {
     fn_name <- "CorrParsed"
     if (!exists(fn_name) || !is.function(get(fn_name))) stop("CorrParsed() not defined after sourcing")
     return(get(fn_name))
+  } else if (name == "reliability") {
+    src <- file.path(r_dir, "reliability.R")
+    if (!file.exists(src)) stop("reliability.R not found under src-r/R")
+    source(src, local = TRUE)
+    fn_name <- "ReliabilityParsed"
+    if (!exists(fn_name) || !is.function(get(fn_name))) stop("ReliabilityParsed() not defined after sourcing")
+    return(get(fn_name))
   }
   stop(paste0("Unknown analysis: ", name))
 }
@@ -105,14 +113,19 @@ dat <- jsonlite::fromJSON(json_txt)
 if (is.list(dat) && !is.data.frame(dat)) dat <- as.data.frame(dat)
 
 runner <- load_analysis(analysis)
-out <- runner(dat)
+if (analysis == "reliability") {
+  model_code <- if (!is.na(opt3) && nzchar(opt3)) opt3 else "alpha"
+  out <- runner(dat, model_code)
+} else {
+  out <- runner(dat)
+}
 
 # Optionally apply sort for descriptive analysis
-if (!is.na(sort_code) && nzchar(sort_code) && analysis == "descriptive") {
+if (!is.na(opt3) && nzchar(opt3) && analysis == "descriptive") {
   # Sort() from utils.R accepts shorthand codes like 'mean_asc' / 'mean_desc'
   sorter <- if (exists("Sort") && is.function(get("Sort"))) get("Sort") else NULL
   if (!is.null(sorter)) {
-    out <- sorter(sort_code)(out)
+    out <- sorter(opt3)(out)
   }
 }
 cat(jsonlite::toJSON(out, auto_unbox = TRUE, na = "null"))

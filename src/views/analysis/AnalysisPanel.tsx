@@ -3,8 +3,8 @@ import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
 import tauriIPC from '../../bridge';
 import DescriptiveStatsPanel from './DescriptiveStatsPanel';
 import CorrelationPanel from './CorrelationPanel';
+import ReliabilityPanel from './ReliabilityPanel';
 import FactorAnalysisPanel from './FactorAnalysisPanel';
-import ExecuteButton from '../../components/ExecuteButton';
 
 const AnalysisPanel = () => {
   const query = useMemo(() => new URLSearchParams(window.location.search || ''), []);
@@ -16,7 +16,8 @@ const AnalysisPanel = () => {
     const win = getCurrentWebviewWindow();
     let unlisten: (() => void) | null = null;
     (async () => {
-      unlisten = await win.listen('panel:load', (_ev: any) => {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      unlisten = await win.listen('panel:load', (_ev: unknown) => {
         // 既存ウィンドウ再利用時の初期化処理はここに書く
       });
     })();
@@ -25,22 +26,7 @@ const AnalysisPanel = () => {
     };
   }, []);
 
-  const runAnalysis = async () => {
-    const payload: Record<string, unknown> = { path, sheet, analysis: type };
-    const url = `src-tauri/assets/html/result.html?path=${encodeURIComponent(
-      path
-    )}&sheet=${encodeURIComponent(sheet)}&analysis=${encodeURIComponent(type)}`;
-
-    await tauriIPC.openOrReuseWindow('result', url, payload);
-
-    const win = getCurrentWebviewWindow();
-    await win.close();
-  };
-
-  const cancel = () => {
-    const win = getCurrentWebviewWindow();
-    win.close();
-  };
+  // No parent-level execute button; each panel handles execution.
 
   return (
     <main className="container analysis-panel-root">
@@ -91,17 +77,34 @@ const AnalysisPanel = () => {
             await win.close();
           }}
         />
+      ) : type === 'reliability' ? (
+        <ReliabilityPanel
+          path={path}
+          sheet={sheet}
+          onConfirm={async (selected, model) => {
+            const payload: Record<string, unknown> = {
+              path,
+              sheet,
+              analysis: 'reliability',
+              variables: selected,
+              model,
+            };
+            const url = `src-tauri/assets/html/result.html?path=${encodeURIComponent(
+              path
+            )}&sheet=${encodeURIComponent(sheet)}&analysis=${encodeURIComponent('reliability')}&model=${encodeURIComponent(
+              model
+            )}&vars=${encodeURIComponent(JSON.stringify(selected))}`;
+            await tauriIPC.openOrReuseWindow('result', url, payload);
+            const win = getCurrentWebviewWindow();
+            await win.close();
+          }}
+        />
       ) : type === 'factor' ? (
         <FactorAnalysisPanel />
       ) : (
         <section>
           <p className="muted">この分析タイプの設定UIはMVPで未実装です。</p>
         </section>
-      )}
-      {type !== 'descriptive' && type !== 'correlation' && (
-        <div className="table-view-controls" style={{ justifyContent: 'flex-end' }}>
-          <ExecuteButton onClick={runAnalysis} disabled={!type || !path || !sheet} />
-        </div>
       )}
     </main>
   );

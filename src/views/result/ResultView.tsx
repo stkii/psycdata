@@ -21,6 +21,7 @@ export default function ResultView() {
   const sheet = query.get('sheet') || '';
   const analysis = query.get('analysis') || '分析';
   const sort = (query.get('sort') as 'default' | 'mean_asc' | 'mean_desc' | null) || null;
+  const model = (query.get('model') as 'alpha' | 'omega' | null) || null;
   const [table, setTable] = useState<ParsedTable | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -67,6 +68,21 @@ export default function ResultView() {
             const result = await invoke<ParsedTable>('parse_excel', { path, sheet });
             if (!cancelled) setTable(result);
           }
+        } else if (analysis === 'reliability') {
+          const varsParam = query.get('vars');
+          let vars: string[] = [];
+          if (varsParam) {
+            try {
+              vars = JSON.parse(varsParam);
+            } catch (_) {}
+          }
+          if (vars.length > 1) {
+            const result = await tauriIPC.runReliability(path, sheet, vars, (model ?? 'alpha') as 'alpha' | 'omega');
+            if (!cancelled) setTable(result as unknown as ParsedTable);
+          } else {
+            const result = await invoke<ParsedTable>('parse_excel', { path, sheet });
+            if (!cancelled) setTable(result);
+          }
         } else {
           const result = await invoke<ParsedTable>('parse_excel', { path, sheet });
           if (!cancelled) setTable(result);
@@ -93,6 +109,7 @@ export default function ResultView() {
         analysis?: string;
         variables?: string[];
         sort?: 'default' | 'mean_asc' | 'mean_desc';
+        model?: 'alpha' | 'omega';
       }>(
         'result:load',
         async (ev) => {
@@ -107,6 +124,9 @@ export default function ResultView() {
               setTable(result as unknown as ParsedTable);
             } else if (ev.payload?.analysis === 'correlation' && Array.isArray(ev.payload?.variables)) {
               const result = await tauriIPC.runCorrelation(p, s, ev.payload.variables);
+              setTable(result as unknown as ParsedTable);
+            } else if (ev.payload?.analysis === 'reliability' && Array.isArray(ev.payload?.variables)) {
+              const result = await tauriIPC.runReliability(p, s, ev.payload.variables, ev.payload?.model ?? 'alpha');
               setTable(result as unknown as ParsedTable);
             } else {
               const result = await invoke<ParsedTable>('parse_excel', { path: p, sheet: s });
@@ -134,14 +154,23 @@ export default function ResultView() {
       </p>
       {loading && <p>読み込み中…</p>}
       {error && <p className="error">エラー: {error}</p>}
-      {table && (
+      {table && analysis === 'reliability' ? (
+        <section>
+          {(() => {
+            const first = table.rows && table.rows.length > 0 ? table.rows[0] : null;
+            const label = first && first.length > 0 ? String(first[0]) : 'Cronbach\'s alpha';
+            const value = first && first.length > 1 ? String(first[1]) : '';
+            return <p>{`${label}: ${value}`}</p>;
+          })()}
+        </section>
+      ) : table ? (
         <section>
           <p className="muted">
             {table.rows.length} 行 * {Math.max(table.headers.length, ...table.rows.map((r) => r.length))} 列
           </p>
           <DataTable data={table} />
         </section>
-      )}
+      ) : null}
       {!loading && !error && !table && <p className="muted">パラメータが不足しています。</p>}
     </main>
   );

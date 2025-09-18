@@ -10,6 +10,7 @@ pub fn run() {
         .invoke_handler(tauri::generate_handler![
             commands::analysis::describe::run_descriptive_stats,
             commands::analysis::correlation::run_correlation,
+            commands::analysis::reliability::run_reliability,
             commands::parse::list_sheets,
             commands::parse::parse_excel,
             commands::window::open_or_reuse_window,

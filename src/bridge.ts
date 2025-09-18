@@ -30,6 +30,15 @@ class TauriIPC {
   async runCorrelation(path: string, sheet: string, variables: string[]): Promise<ParsedTable> {
     return await invoke('run_correlation', { path, sheet, variables });
   }
+
+  async runReliability(
+    path: string,
+    sheet: string,
+    variables: string[],
+    model: 'alpha' | 'omega'
+  ): Promise<ParsedTable> {
+    return await invoke('run_reliability', { path, sheet, variables, model });
+  }
 }
 
 const tauriIPC = new TauriIPC();
