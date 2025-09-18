@@ -67,7 +67,7 @@ const TableView = () => {
     <main className="table-view-container">
       <h1>データビューア（開発中）</h1>
 
-      <div className="table-view-controls">
+      <div className="table-controls-abs">
         <button onClick={pickFile} disabled={loading}>
           {filePath ? '別のファイルを選択' : 'ファイルを選択'}
         </button>
@@ -104,16 +104,11 @@ const TableView = () => {
         )}
       </div>
 
-      {filePath && <p className="muted small">選択中のファイル: {filePath}</p>}
-
-      {loading && <p>読み込み中…</p>}
-      {error && <p className="error">読み込みに失敗しました: {error}</p>}
-
-      {table && (
-        <section>
-          <DataTable data={table} />
-        </section>
-      )}
+      <section className="table-area-abs">
+        {error && <p className="error">読み込みに失敗しました: {error}</p>}
+        {loading && <p>読み込み中…</p>}
+        {table && <DataTable data={table} />}
+      </section>
     </main>
   );
 };

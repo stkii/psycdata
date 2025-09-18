@@ -175,6 +175,46 @@ table.data-table td.active {
   outline-offset: -2px;
 }
 
+/* ========================================= */
+/* Descriptive options */
+
+.option-group {
+  background: #FFFFFF;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 260px;
+  padding: 8px 10px;
+}
+
+.option-group legend {
+  color: #444444;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.option-group label.radio {
+  display: block;
+  margin: 4px 0;
+}
+
+.option-group input[type="radio"] {
+  margin-right: 6px;
+}
+
+/* ========================================= */
+/* Unified app button */
+
+.app-btn {
+  align-items: center;
+  display: inline-flex;
+  height: 38px; /* unify height across places */
+  padding: 0 16px; /* horizontal padding only to simplify width calc */
+  white-space: nowrap; /* prevent wrapping */
+}
+
 table.data-table td.active.editing {
   background: #E6F2FF;
 }

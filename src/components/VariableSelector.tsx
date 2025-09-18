@@ -1,4 +1,5 @@
 import { useMemo, useState, type FC, type ChangeEvent } from 'react';
+import AppButton from './AppButton';
 
 type Props = {
   allVariables: string[];
@@ -91,12 +92,8 @@ const VariableSelector: FC<Props> = ({
         </div>
       </div>
       <div className="varsel__footer">
-        <button type="button" onClick={handleAdd}>
-          → 追加
-        </button>
-        <button type="button" onClick={handleRemove}>
-          ← 削除
-        </button>
+        <AppButton widthGroup="analysis-primary" onClick={handleAdd} label={<>追加</>} />
+        <AppButton widthGroup="analysis-secondary" onClick={handleRemove} label={<>削除</>} />
       </div>
     </div>
   );

@@ -1,4 +1,5 @@
 import type { FC, MouseEventHandler, ReactNode } from 'react';
+import AppButton from './AppButton';
 
 type Props = {
   onClick: MouseEventHandler<HTMLButtonElement>;
@@ -10,11 +11,15 @@ type Props = {
 
 const ExecuteButton: FC<Props> = ({ onClick, disabled, label = '実行', title, className }) => {
   return (
-    <button type="button" onClick={onClick} disabled={disabled} title={title} className={className}>
-      {label}
-    </button>
+    <AppButton
+      onClick={onClick}
+      disabled={disabled}
+      label={label}
+      title={title}
+      className={className}
+      widthGroup=""
+    />
   );
 };
 
 export default ExecuteButton;
-

@@ -1,5 +1,5 @@
 import tauriIPC from '../bridge';
-import type { ChangeEvent } from 'react';
+import { useState, type ChangeEvent } from 'react';
 
 type Props = {
   filePath: string | null;
@@ -8,6 +8,8 @@ type Props = {
 };
 
 const AnalysisMenuButton = ({ filePath, sheet, disabled }: Props) => {
+  const [selection, setSelection] = useState<string>('');
+
   const onChange = async (e: ChangeEvent<HTMLSelectElement>) => {
     const analysis = e.currentTarget.value;
     if (!analysis) return;
@@ -16,13 +18,13 @@ const AnalysisMenuButton = ({ filePath, sheet, disabled }: Props) => {
       analysis
     )}&path=${encodeURIComponent(filePath)}&sheet=${encodeURIComponent(sheet)}`;
     await tauriIPC.openOrReuseWindow('panel', url, { path: filePath, sheet, analysis });
-    // reset selection to placeholder
-    e.currentTarget.value = '';
+    // reset selection to placeholder（制御コンポーネントで確実にクリア）
+    setSelection('');
   };
 
   return (
     <label>
-      <select className="analysis-select" onChange={onChange} disabled={disabled} defaultValue="">
+      <select className="analysis-select" onChange={onChange} disabled={disabled} value={selection}>
         <option value="" disabled>
           分析
         </option>

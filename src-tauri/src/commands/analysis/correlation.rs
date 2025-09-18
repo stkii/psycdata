@@ -32,6 +32,7 @@ pub async fn run_correlation(
         "correlation",
         &dataset,
         std::time::Duration::from_secs(60),
+        None,
     )?;
     Ok(table)
 }

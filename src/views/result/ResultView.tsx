@@ -20,6 +20,7 @@ export default function ResultView() {
   const path = query.get('path') || '';
   const sheet = query.get('sheet') || '';
   const analysis = query.get('analysis') || '分析';
+  const sort = (query.get('sort') as 'default' | 'mean_asc' | 'mean_desc' | null) || null;
   const [table, setTable] = useState<ParsedTable | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -42,7 +43,7 @@ export default function ResultView() {
             }
           }
           if (vars.length > 0) {
-            const result = await tauriIPC.runDescriptiveStats(path, sheet, vars);
+            const result = await tauriIPC.runDescriptiveStats(path, sheet, vars, sort ?? undefined);
             if (!cancelled) setTable(result as unknown as ParsedTable);
           } else {
             // Fallback: just preview the sheet
@@ -91,6 +92,7 @@ export default function ResultView() {
         sheet: string;
         analysis?: string;
         variables?: string[];
+        sort?: 'default' | 'mean_asc' | 'mean_desc';
       }>(
         'result:load',
         async (ev) => {
@@ -101,7 +103,7 @@ export default function ResultView() {
             setLoading(true);
             setError(null);
             if (ev.payload?.analysis === 'descriptive' && Array.isArray(ev.payload?.variables)) {
-              const result = await tauriIPC.runDescriptiveStats(p, s, ev.payload.variables);
+              const result = await tauriIPC.runDescriptiveStats(p, s, ev.payload.variables, ev.payload?.sort);
               setTable(result as unknown as ParsedTable);
             } else if (ev.payload?.analysis === 'correlation' && Array.isArray(ev.payload?.variables)) {
               const result = await tauriIPC.runCorrelation(p, s, ev.payload.variables);

@@ -5,6 +5,7 @@ node_modules/
 
 # Dev
 dev/misc/
+dev/rules/
 dev/snippets/
 
 # Docs

@@ -13,6 +13,7 @@ pub async fn run_descriptive_stats(
     path: String,
     sheet: String,
     variables: Vec<String>,
+    order: Option<String>,
 ) -> Result<ParsedTable, String> {
     if path.trim().is_empty() {
         return Err("ファイルパスが空です".to_string());
@@ -32,6 +33,7 @@ pub async fn run_descriptive_stats(
         "descriptive",
         &dataset,
         std::time::Duration::from_secs(60),
+        order.as_deref(),
     )?;
     Ok(table)
 }

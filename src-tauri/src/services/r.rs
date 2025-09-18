@@ -8,6 +8,7 @@ use std::time::{
     Duration,
     SystemTime,
 };
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use calamine::Data;
 use tauri::AppHandle;
@@ -170,16 +171,19 @@ pub fn run_r_analysis_with_dataset(
     analysis: &str,
     dataset: &IndexMap<String, Vec<Option<f64>>>,
     _timeout: Duration,
+    sort_code: Option<&str>,
 ) -> Result<ParsedTable, String> {
     // Serialize dataset to a temp JSON file
     let input_json = serde_json::to_string(dataset).map_err(|e| e.to_string())?;
     let mut tmp_path = std::env::temp_dir();
+    static COUNTER: AtomicU64 = AtomicU64::new(0);
+    let seq = COUNTER.fetch_add(1, Ordering::Relaxed);
     let ts = SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
-        .map(|d| d.as_millis())
+        .map(|d| d.as_nanos())
         .unwrap_or(0);
     let pid = std::process::id();
-    let fname = format!("psycdata_describe_{}_{}.json", pid, ts);
+    let fname = format!("psycdata_describe_{}_{}_{}.json", pid, ts, seq);
     tmp_path.push(&fname);
     {
         let mut f =
@@ -197,13 +201,19 @@ pub fn run_r_analysis_with_dataset(
         .map(|p| p.to_path_buf())
         .unwrap_or_else(|| PathBuf::from("src-r"));
 
-    let output = Command::new("Rscript")
-        .arg("--vanilla")
+    let mut cmd = Command::new("Rscript");
+    cmd.arg("--vanilla")
         .arg(script)
         .arg(analysis)
         .arg(&tmp_path)
         .env("LANG", "C")
-        .env("R_PROJECT_ROOT", &root_src_r)
+        .env("R_PROJECT_ROOT", &root_src_r);
+    if let Some(code) = sort_code {
+        if !code.trim().is_empty() {
+            cmd.arg(code);
+        }
+    }
+    let output = cmd
         .output()
         .map_err(|e| format!("Rscript の起動に失敗しました: {}", e))?;
 

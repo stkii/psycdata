@@ -45,25 +45,26 @@ const AnalysisPanel = () => {
   return (
     <main className="container analysis-panel-root">
       <h1>分析パネル</h1>
-      <p className="muted small">
+      <p className="muted small analysis-panel-subtitle">
         分析: {type} / シート: {sheet}
       </p>
       {type === 'descriptive' ? (
         <DescriptiveStatsPanel
           path={path}
           sheet={sheet}
-          onConfirm={async (selected) => {
+          onConfirm={async (selected, order) => {
             const payload: Record<string, unknown> = {
               path,
               sheet,
               analysis: 'descriptive',
               variables: selected,
+              sort: order,
             };
             const url = `src-tauri/assets/html/result.html?path=${encodeURIComponent(
               path
-            )}&sheet=${encodeURIComponent(sheet)}&analysis=${encodeURIComponent('descriptive')}&vars=${encodeURIComponent(
-              JSON.stringify(selected)
-            )}`;
+            )}&sheet=${encodeURIComponent(sheet)}&analysis=${encodeURIComponent('descriptive')}&sort=${encodeURIComponent(
+              order
+            )}&vars=${encodeURIComponent(JSON.stringify(selected))}`;
             await tauriIPC.openOrReuseWindow('result', url, payload);
             const win = getCurrentWebviewWindow();
             await win.close();
@@ -97,9 +98,8 @@ const AnalysisPanel = () => {
           <p className="muted">この分析タイプの設定UIはMVPで未実装です。</p>
         </section>
       )}
-      {type !== 'descriptive' && (
+      {type !== 'descriptive' && type !== 'correlation' && (
         <div className="table-view-controls" style={{ justifyContent: 'flex-end' }}>
-          <button onClick={cancel}>キャンセル</button>
           <ExecuteButton onClick={runAnalysis} disabled={!type || !path || !sheet} />
         </div>
       )}

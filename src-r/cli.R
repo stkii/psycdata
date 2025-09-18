@@ -5,9 +5,11 @@
 #   - Source R/<analysis>.R defining analysis functions (e.g., Describe)
 #   - Read JSON input, dispatch to analysis, write JSON to stdout
 #
-# Usage: cli.R <analysis> <input_json_path>
+# Usage: cli.R <analysis> <input_json_path> [sort_code]
 # - analysis: e.g., 'descriptive'
 # - input_json_path: JSON file path (named list of numeric vectors; NA allowed)
+# - sort_code (optional): for descriptive output ordering; one of
+#     'default', 'mean_asc', 'mean_desc'
 #
 ## Note: jsonlite is required, but we attempt to activate renv first (below)
 
@@ -19,6 +21,7 @@ if (length(args_trailing) < 2) {
 analysis <- args_trailing[[1]]
 input_path <- args_trailing[[2]]
 if (!file.exists(input_path)) stop(paste0("Input file not found: ", input_path))
+sort_code <- if (length(args_trailing) >= 3) args_trailing[[3]] else NA_character_
 
 # Resolve project root: env-var first, then script-relative
 resolve_script_path <- function() {
@@ -62,6 +65,12 @@ suppressWarnings(suppressMessages({
   if (!requireNamespace("jsonlite", quietly = TRUE)) stop("Package 'jsonlite' is required.")
 }))
 
+# Load shared utilities if available
+utils_src <- file.path(r_dir, "utils.R")
+if (file.exists(utils_src)) {
+  source(utils_src, local = TRUE)
+}
+
 # Dispatch: load required analysis function(s)
 load_analysis <- function(name) {
   if (name == "descriptive") {
@@ -82,10 +91,28 @@ load_analysis <- function(name) {
   stop(paste0("Unknown analysis: ", name))
 }
 
-# Read input JSON and coerce to data.frame when needed
-dat <- jsonlite::fromJSON(input_path)
+# Read input JSON robustly and coerce to data.frame when needed
+if (!file.exists(input_path)) stop(paste0("Input file not found: ", input_path))
+info <- tryCatch(file.info(input_path), error = function(e) NULL)
+if (is.null(info)) stop(paste0("Failed to stat input path: ", input_path))
+if (isTRUE(info$isdir)) stop(paste0("Input path is a directory (expected file): ", input_path))
+
+# Avoid ambiguity: read file contents then parse JSON
+json_txt <- tryCatch(paste(readLines(input_path, warn = FALSE), collapse = "\n"), error = function(e) {
+  stop(paste0("Failed to read input JSON file: ", input_path, " (", e$message, ")"))
+})
+dat <- jsonlite::fromJSON(json_txt)
 if (is.list(dat) && !is.data.frame(dat)) dat <- as.data.frame(dat)
 
 runner <- load_analysis(analysis)
 out <- runner(dat)
+
+# Optionally apply sort for descriptive analysis
+if (!is.na(sort_code) && nzchar(sort_code) && analysis == "descriptive") {
+  # Sort() from utils.R accepts shorthand codes like 'mean_asc' / 'mean_desc'
+  sorter <- if (exists("Sort") && is.function(get("Sort"))) get("Sort") else NULL
+  if (!is.null(sorter)) {
+    out <- sorter(sort_code)(out)
+  }
+}
 cat(jsonlite::toJSON(out, auto_unbox = TRUE, na = "null"))

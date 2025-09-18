@@ -1,25 +1,136 @@
 .table-view-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
+  height: 100vh;
   margin: 0;
-  padding-top: 10vh;
-  text-align: center;
+  overflow: hidden;
+  position: relative;
+  width: 100%;
 }
 
-/* Analysis panels: prevent outer scroll; keep lists scrolling inside */
+/* Analysis panels: absolute layout within fixed window */
 .analysis-panel-root {
-  display: flex;
-  flex-direction: column;
   height: 100vh;
   overflow: hidden;
+  position: relative;
+  width: 100%;
+}
+
+.analysis-panel-root h1 {
+  left: 16px;
+  margin: 0;
+  position: absolute;
+  top: 12px;
+}
+
+.analysis-panel-subtitle {
+  left: 16px;
+  margin: 0;
+  position: absolute;
+  top: 48px;
 }
 
 .table-view-controls {
+  bottom: 8px;
   display: flex;
   gap: 8px;
-  justify-content: center;
-  margin: 12px 0 4px;
+  justify-content: flex-end;
+  margin: 0;
+  position: absolute;
+  right: 16px;
+}
+
+.table-view-controls button {
+  align-items: center;
+  display: inline-flex;
+  height: 38px;
+}
+
+/* Descriptive panel absolute layout area */
+.desc-panel-abs {
+  bottom: 48px;
+  left: 16px;
+  position: absolute;
+  right: 16px;
+  top: 80px;
+}
+
+.generic-panel-abs {
+  bottom: 48px;
+  left: 16px;
+  position: absolute;
+  right: 16px;
+  top: 80px;
+}
+
+.generic-varsel-abs {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 288px; /* reserve right panel for correlation options */
+  top: 0;
+}
+
+.corr-side-abs {
+  left: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 272px;
+}
+
+.desc-panel-abs .desc-content {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.desc-varsel-abs {
+  bottom: 0;
+  left: 0;
+  position: absolute;
+  right: 288px; /* reserve for order box */
+  top: 0;
+}
+
+.desc-order-abs {
+  left: auto;
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 272px;
+}
+
+/* Align varsel footer (追加/削除) and Execute button on same baseline */
+.desc-varsel-abs .varsel,
+.generic-panel-abs .varsel {
+  height: 100%;
+  position: relative;
+}
+
+.desc-varsel-abs .varsel__search,
+.generic-panel-abs .varsel__search {
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+
+.desc-varsel-abs .varsel__cols,
+.generic-panel-abs .varsel__cols {
+  bottom: 48px; /* leave space for footer buttons */
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 44px; /* below search input */
+}
+
+.desc-varsel-abs .varsel__footer,
+.generic-panel-abs .varsel__footer {
+  bottom: 8px; /* align with .table-view-controls */
+  left: 0;
+  position: absolute;
+  right: 0;
 }
 
 .small {
@@ -47,4 +158,28 @@ select {
   outline: none;
   padding: 0.6em 1.2em;
   transition: border-color 0.25s;
+}
+.table-controls-abs {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  left: 16px;
+  position: absolute;
+  right: 16px;
+  top: 12px;
+}
+
+.table-area-abs {
+  bottom: 16px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 25%; /* bottom ~3/4 of the screen */
+}
+
+.table-area-abs .table-wrap {
+  height: 100%;
+  margin: 0;        /* remove side margins */
+  max-height: none; /* override default to fill area */
+  max-width: none;  /* allow full width */
 }

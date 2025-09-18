@@ -16,10 +16,15 @@ pub fn open_or_reuse_window(
     url: String,
     payload: Option<serde_json::Value>,
 ) -> Result<(), String> {
-    if let Some(win) = handle.get_webview_window(&label) {
-        // 既存ウィンドウを再利用
+    let is_panel = label.as_str() == "panel";
+    // パネルは毎回新規作成。既存があれば閉じる。
+    if is_panel {
+        if let Some(win) = handle.get_webview_window(&label) {
+            let _ = win.close();
+        }
+    } else if let Some(win) = handle.get_webview_window(&label) {
+        // 既存ウィンドウを再利用（パネル以外）
         let _ = win.set_focus();
-        // ラベルに応じて既存ウィンドウへイベント通知（フロントは固定イベント名をlisten）
         match label.as_str() {
             "result" => {
                 if let Some(data) = payload {
@@ -31,9 +36,7 @@ pub fn open_or_reuse_window(
                     win.emit("panel:load", data).map_err(|e| e.to_string())?;
                 }
             },
-            _ => {
-                // 他ラベル向けの既存更新イベントが必要ならここに追加
-            },
+            _ => {},
         }
         return Ok(());
     }
@@ -47,7 +50,8 @@ pub fn open_or_reuse_window(
         },
         "panel" => {
             builder = builder.title("PsycData - (Analysis Panel)");
-            builder = builder.inner_size(960.0, 720.0);
+            builder = builder.inner_size(1000.0, 700.0);
+            builder = builder.resizable(false);
         },
         "table" => {
             builder = builder.title("PsycData - (Table Viewer)");

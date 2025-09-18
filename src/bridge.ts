@@ -18,8 +18,13 @@ class TauriIPC {
     });
   }
 
-  async runDescriptiveStats(path: string, sheet: string, variables: string[]): Promise<ParsedTable> {
-    return await invoke('run_descriptive_stats', { path, sheet, variables });
+  async runDescriptiveStats(
+    path: string,
+    sheet: string,
+    variables: string[],
+    order?: 'default' | 'mean_asc' | 'mean_desc'
+  ): Promise<ParsedTable> {
+    return await invoke('run_descriptive_stats', { path, sheet, variables, order });
   }
 
   async runCorrelation(path: string, sheet: string, variables: string[]): Promise<ParsedTable> {

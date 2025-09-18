@@ -3,11 +3,12 @@ import tauriIPC from '../../bridge';
 import type { ParsedTable } from '../../components/DataTable';
 import VariableSelector from '../../components/VariableSelector';
 import ExecuteButton from '../../components/ExecuteButton';
+import DesciriptiveOption, { type DescriptiveOrder } from '../../components/DesciriptiveOption';
 
 type Props = {
   path: string;
   sheet: string;
-  onConfirm: (selectedVariables: string[]) => void;
+  onConfirm: (selectedVariables: string[], order: DescriptiveOrder) => void;
 };
 
 const DescriptiveStatsPanel: FC<Props> = ({ path, sheet, onConfirm }) => {
@@ -17,6 +18,7 @@ const DescriptiveStatsPanel: FC<Props> = ({ path, sheet, onConfirm }) => {
 
   const headers = useMemo(() => table?.headers ?? [], [table]);
   const [selected, setSelected] = useState<string[]>([]);
+  const [order, setOrder] = useState<DescriptiveOrder>('default');
 
   useEffect(() => {
     if (!path || !sheet) return;
@@ -43,17 +45,22 @@ const DescriptiveStatsPanel: FC<Props> = ({ path, sheet, onConfirm }) => {
   };
 
   return (
-    <section>
+    <section className="desc-panel-abs">
       {loading && <p>読み込み中…</p>}
       {error && <p className="error">エラー: {error}</p>}
       {!loading && !error && (
         <>
-          <div className="varsel__wrap">
-            <VariableSelector allVariables={headers} value={selected} onChange={applySelection} />
+          <div className="desc-content">
+            <div className="desc-varsel-abs">
+              <VariableSelector allVariables={headers} value={selected} onChange={applySelection} />
+            </div>
+            <div className="desc-order-abs">
+              <DesciriptiveOption value={order} onChange={setOrder} />
+            </div>
           </div>
 
           <div className="table-view-controls" style={{ justifyContent: 'flex-end' }}>
-            <ExecuteButton onClick={() => onConfirm(selected)} disabled={selected.length === 0} />
+            <ExecuteButton onClick={() => onConfirm(selected, order)} disabled={selected.length === 0} />
           </div>
         </>
       )}
