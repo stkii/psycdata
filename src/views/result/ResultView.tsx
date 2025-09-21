@@ -2,6 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
 import DataTable, { type ParsedTable } from '../../components/DataTable';
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { save as saveDialog } from '@tauri-apps/plugin-dialog';
+import { toCsv, toJson } from '../../utils/export';
 import tauriIPC from '../../bridge';
 
 function useQuery() {
@@ -25,6 +27,56 @@ export default function ResultView() {
   const [table, setTable] = useState<ParsedTable | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  const variables: string[] = useMemo(() => {
+    const varsParam = query.get('vars');
+    if (!varsParam) return [];
+    try {
+      const arr = JSON.parse(varsParam);
+      return Array.isArray(arr) ? (arr.filter((v) => typeof v === 'string') as string[]) : [];
+    } catch {
+      return [];
+    }
+  }, [query]);
+
+  const defaultFileBase = useMemo(() => {
+    const ts = new Date().toISOString().replace(/[-:]/g, '').replace(/\..+$/, '').replace('T', '-');
+    const a = analysis || 'analysis';
+    const s = sheet || 'sheet';
+    return `${a}_${s}_${ts}`;
+  }, [analysis, sheet]);
+
+  async function handleExportJson() {
+    if (!table) return;
+    const path = await saveDialog({
+      filters: [{ name: 'JSON', extensions: ['json'] }],
+      defaultPath: `${defaultFileBase}.json`,
+      title: 'JSONとして保存',
+    });
+    if (!path) return;
+    const outPath = String(path).toLowerCase().endsWith('.json') ? String(path) : `${String(path)}.json`;
+    const content = toJson({
+      analysis,
+      sheet,
+      variables,
+      table,
+      meta: { source: 'psycdata' },
+    });
+    await tauriIPC.saveTextFile(outPath, content);
+  }
+
+  async function handleExportCsv() {
+    if (!table) return;
+    const path = await saveDialog({
+      filters: [{ name: 'CSV', extensions: ['csv'] }],
+      defaultPath: `${defaultFileBase}.csv`,
+      title: 'CSVとして保存',
+    });
+    if (!path) return;
+    const outPath = String(path).toLowerCase().endsWith('.csv') ? String(path) : `${String(path)}.csv`;
+    const content = toCsv(table, { bom: true, newline: '\\r\\n' });
+    await tauriIPC.saveTextFile(outPath, content);
+  }
 
   useEffect(() => {
     if (!path || !sheet) return;
@@ -161,6 +213,14 @@ export default function ResultView() {
       <p className="muted small">
         分析: {analysis} / シート: {sheet}
       </p>
+      <div style={{ display: 'flex', gap: 8, margin: '8px 0' }}>
+        <button onClick={handleExportJson} disabled={!table || loading}>
+          JSONとして保存
+        </button>
+        <button onClick={handleExportCsv} disabled={!table || loading}>
+          CSVとして保存
+        </button>
+      </div>
       {loading && <p>読み込み中…</p>}
       {error && <p className="error">エラー: {error}</p>}
       {table && analysis === 'reliability' ? (

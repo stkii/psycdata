@@ -11,6 +11,7 @@ pub fn run() {
             commands::analysis::describe::run_descriptive_stats,
             commands::analysis::correlation::run_correlation,
             commands::analysis::reliability::run_reliability,
+            commands::fs::save_text_file,
             commands::parse::list_sheets,
             commands::parse::parse_excel,
             commands::window::open_or_reuse_window,

@@ -39,6 +39,10 @@ class TauriIPC {
   ): Promise<ParsedTable> {
     return await invoke('run_reliability', { path, sheet, variables, model });
   }
+
+  async saveTextFile(path: string, content: string): Promise<void> {
+    return await invoke('save_text_file', { path, content });
+  }
 }
 
 const tauriIPC = new TauriIPC();
