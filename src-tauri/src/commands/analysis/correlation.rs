@@ -1,8 +1,6 @@
+use crate::commands::utils::validate_sheet_exists;
 use crate::models::dto::ParsedTable;
-use crate::services::{
-    excel,
-    r as rsvc,
-};
+use crate::services::r as rsvc;
 
 /// Execute correlation analysis (upper-triangular matrix with significance marks prepared in R)
 #[tauri::command]
@@ -12,17 +10,7 @@ pub async fn run_correlation(
     sheet: String,
     variables: Vec<String>,
 ) -> Result<ParsedTable, String> {
-    if path.trim().is_empty() {
-        return Err("ファイルパスが空です".to_string());
-    }
-    if sheet.trim().is_empty() {
-        return Err("シート名が空です".to_string());
-    }
-    // シート存在チェック（早期エラー）
-    let sheets = excel::list_sheets(&path)?;
-    if !sheets.iter().any(|s| s == &sheet) {
-        return Err(format!("シートが見つかりません: {}", sheet));
-    }
+    validate_sheet_exists(&path, &sheet)?;
 
     // Build numeric dataset in Excel column order
     let dataset = rsvc::build_numeric_dataset(&path, &sheet, &variables)?;

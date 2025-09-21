@@ -4,11 +4,14 @@ use std::fs;
 use std::io::Write;
 use std::path::PathBuf;
 use std::process::Command;
+use std::sync::atomic::{
+    AtomicU64,
+    Ordering,
+};
 use std::time::{
     Duration,
     SystemTime,
 };
-use std::sync::atomic::{AtomicU64, Ordering};
 
 use calamine::Data;
 use tauri::AppHandle;

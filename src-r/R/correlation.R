@@ -137,18 +137,15 @@ CorrTest <- function(x, method="pearson", use="all.obs", alternative="two.sided"
     use = use                  # missing value handling method
   )
 
-  # Truncate to 3 decimal places
-  TruncateMatrix <- function(mtx, digits = 3) {
+  # Round to N decimal places (四捨五入, half-up)
+  RoundMatrix <- function(mtx, digits = 4) {
     if (is.null(mtx)) return(NULL)
     scale <- 10^digits
-    return(trunc(mtx * scale) / scale)
+    return(sign(mtx) * floor(abs(mtx) * scale + 0.5) / scale)
   }
 
-  # Apply truncation
-  res$corr <- TruncateMatrix(res$corr, 3)
-  res$p   <- TruncateMatrix(res$p, 3)
-  res$t   <- TruncateMatrix(res$t, 3)
-  res$df  <- TruncateMatrix(res$df, 3)
+  # 中間データは丸めず保持（corr, p, t, df すべて生値）
+  # 表示時の丸めは CorrParsed 側で行う
 
   return (res)
 }
@@ -176,19 +173,21 @@ CorrParsed <- function(x, method="pearson", use="pairwise.complete.obs", alterna
 
   headers <- c("Variable", vars)
   n <- length(vars)
-  rows <- lapply(seq_len(n), function(i) {
+
+  # Upper-triangular correlation rows (existing behavior)
+  rows_corr <- lapply(seq_len(n), function(i) {
     row_vals <- character(n + 1)
     row_vals[[1]] <- vars[[i]]
     for (j in seq_len(n)) {
       if (j < i) {
-        row_vals[[j + 1]] <- ""                   # lower triangle blank
+        row_vals[[j + 1]] <- "" # lower triangle blank
       } else if (j == i) {
         row_vals[[j + 1]] <- sprintf("%.3f", 1.0) # diagonal
       } else {
         r <- corr[i, j]
         p <- pval[i, j]
         if (is.na(r)) {
-          row_vals[[j + 1]] <- "NA"
+          row_vals[[j + 1]] <- "1.000"
         } else {
           row_vals[[j + 1]] <- paste0(sprintf("%.3f", r), stars_for_p(p))
         }
@@ -197,5 +196,37 @@ CorrParsed <- function(x, method="pearson", use="pairwise.complete.obs", alterna
     row_vals
   })
 
+  # Separator row to label p-values block
+  sep_row <- c("p-value", rep("", n))
+
+  # Upper-triangular p-value rows (3 decimals, rounded; <.001 rule applied)
+  rows_p <- lapply(seq_len(n), function(i) {
+    row_vals <- character(n + 1)
+    row_vals[[1]] <- vars[[i]]
+    for (j in seq_len(n)) {
+      if (j < i) {
+        row_vals[[j + 1]] <- "" # lower triangle blank
+      } else if (j == i) {
+        # "NULL" is represented as undefinend value
+        row_vals[[j + 1]] <- "NULL" # diagonal p-value undefined
+      } else {
+        p <- pval[i, j]
+        if (is.na(p)) {
+          row_vals[[j + 1]] <- "NULL"
+        } else {
+          # 3桁の四捨五入（half-up）。3桁丸めの結果が0.000なら"<.001"を表示
+          p3 <- sign(p) * floor(abs(p) * 1000 + 0.5) / 1000
+          if (p > 0 && p3 == 0) {
+            row_vals[[j + 1]] <- "<.001"
+          } else {
+            row_vals[[j + 1]] <- sprintf("%.3f", p3)
+          }
+        }
+      }
+    }
+    row_vals
+  })
+
+  rows <- c(rows_corr, list(sep_row), rows_p)
   return(list(headers=headers, rows=rows))
 }
