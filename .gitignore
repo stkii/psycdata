@@ -4,12 +4,14 @@ node_modules/
 *.tsbuildinfo
 
 # Dev
+dev/data/
 dev/misc/
 dev/rules/
 dev/snippets/
 
 # Docs
 docs/llms-txt/
+docs/rules/
 
 # Editor
 .cursor/
@@ -25,3 +27,4 @@ pnpm-debug.log*
 
 # macOS-specific files
 .DS_Store
+.Rproj.user

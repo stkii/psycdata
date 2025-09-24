@@ -223,17 +223,17 @@ export default function ResultView() {
       </div>
       {loading && <p>読み込み中…</p>}
       {error && <p className="error">エラー: {error}</p>}
-      {table && analysis === 'reliability' ? (
-        <section>
-          {(() => {
-            const first = table.rows && table.rows.length > 0 ? table.rows[0] : null;
-            const label = first && first.length > 0 ? String(first[0]) : "Cronbach's alpha";
-            const value = first && first.length > 1 ? String(first[1]) : '';
-            return <p>{`${label}: ${value}`}</p>;
-          })()}
-        </section>
-      ) : table ? (
-        (analysis === 'correlation' &&
+      {table ? (
+        analysis === 'reliability' ? (
+          <section>
+            {(() => {
+              const first = table.rows && table.rows.length > 0 ? table.rows[0] : null;
+              const label = first && first.length > 0 ? String(first[0]) : "Cronbach's alpha";
+              const value = first && first.length > 1 ? String(first[1]) : '';
+              return <p>{`${label}: ${value}`}</p>;
+            })()}
+          </section>
+        ) : analysis === 'correlation' ? (
           (() => {
             const sepIdx = table.rows.findIndex((r) => String((r && r[0]) ?? '') === 'p-value');
             if (sepIdx > -1) {
@@ -274,14 +274,20 @@ export default function ResultView() {
             return (
               <section>
                 <p className="muted">
-                  {table.rows.length} 行 *{' '}
-                  {Math.max(table.headers.length, ...table.rows.map((r) => r.length))} 列
+                  {table.rows.length} 行 * {Math.max(table.headers.length, ...table.rows.map((r) => r.length))} 列
                 </p>
                 <DataTable data={table} />
               </section>
             );
-          })()) ||
-        null
+          })()
+        ) : analysis === 'descriptive' ? (
+          <section>
+            <p className="muted">
+              {table.rows.length} 行 * {Math.max(table.headers.length, ...table.rows.map((r) => r.length))} 列
+            </p>
+            <DataTable data={table} />
+          </section>
+        ) : null
       ) : null}
       {!loading && !error && !table && <p className="muted">パラメータが不足しています。</p>}
     </main>
