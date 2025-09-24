@@ -1,0 +1,70 @@
+use tauri::{
+    AppHandle,
+    Emitter,
+    Manager,
+    WebviewUrl,
+    WebviewWindowBuilder,
+};
+
+/// 指定ラベルのウィンドウを開く/再利用する、汎用版。
+/// 既存の場合はフォーカスして、任意のイベントを emit できます。
+/// 未存在の場合は指定 URL で新規作成（タイトル/サイズも指定可能）。
+#[tauri::command]
+pub fn open_or_reuse_window(
+    handle: AppHandle,
+    label: String,
+    url: String,
+    payload: Option<serde_json::Value>,
+) -> Result<(), String> {
+    let is_panel = label.as_str() == "panel";
+    // パネルは毎回新規作成。既存があれば閉じる。
+    if is_panel {
+        if let Some(win) = handle.get_webview_window(&label) {
+            let _ = win.close();
+        }
+    } else if let Some(win) = handle.get_webview_window(&label) {
+        // 既存ウィンドウを再利用（パネル以外）
+        let _ = win.set_focus();
+        match label.as_str() {
+            "result" => {
+                if let Some(data) = payload {
+                    win.emit("result:load", data).map_err(|e| e.to_string())?;
+                }
+            },
+            "panel" => {
+                if let Some(data) = payload {
+                    win.emit("panel:load", data).map_err(|e| e.to_string())?;
+                }
+            },
+            _ => {},
+        }
+        return Ok(());
+    }
+
+    // 新規作成時のウィンドウ属性はラベルで決定
+    let mut builder = WebviewWindowBuilder::new(&handle, &label, WebviewUrl::App(url.into()));
+    match label.as_str() {
+        "result" => {
+            builder = builder.title("PsycData - (Result Viewer)");
+            builder = builder.inner_size(1920.0, 1080.0);
+        },
+        "panel" => {
+            builder = builder.title("PsycData - (Analysis Panel)");
+            builder = builder.inner_size(1000.0, 700.0);
+            builder = builder.resizable(false);
+        },
+        "table" => {
+            builder = builder.title("PsycData - (Table Viewer)");
+            builder = builder.inner_size(1920.0, 1080.0);
+        },
+        _ => {
+            // デフォルト: ラベルをタイトルに、一般的なサイズ
+            builder = builder.title(label.clone());
+            builder = builder.inner_size(1280.0, 800.0);
+        },
+    }
+
+    builder.build().map_err(|e| e.to_string())?;
+
+    Ok(())
+}

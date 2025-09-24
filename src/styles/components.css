@@ -1,0 +1,228 @@
+/* ========================================= */
+
+/* DataTable */
+
+.table-wrap {
+  background: #FFFFFF;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  margin: 10px auto;
+  max-width: calc(100vw - 48px);
+  max-height: 70vh;
+  overflow: auto;
+}
+
+table.data-table {
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: max(600px, 100%);
+  width: max-content;
+}
+
+table.data-table th,
+table.data-table td {
+  border-bottom: 1px solid #EEEEEE;
+  border-right: 1px solid #F3F3F3;
+  font-size: 14px;
+  padding: 6px 10px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+table.data-table th.rownum,
+table.data-table td.rownum {
+  color: #666666;
+  min-width: 64px;
+  text-align: right;
+  width: 64px;
+}
+
+table.data-table th {
+  background: #FAFAFA;
+  border-bottom: 1px solid #DDDDDD;
+  font-weight: 600;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.muted {
+  color: #666666;
+}
+
+/* ========================================= */
+
+/* Minimal button-like look for analysis select */
+.analysis-select {
+  appearance: none;
+  cursor: pointer;
+  text-align: center;
+  text-align-last: center;
+}
+
+/* ========================================= */
+
+/* Variable Selector (分析 変数選択パネル) */
+
+.varsel {
+  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.varsel__wrap {
+  align-items: flex-start;
+  display: flex;
+  gap: 16px;
+}
+
+.varsel__search {
+  display: flex;
+}
+
+.varsel__searchInput {
+  background: #FFFFFF;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  padding: 8px 10px;
+  width: 100%;
+}
+
+.varsel__cols {
+  align-items: stretch;
+  display: flex;
+  gap: 16px;
+  height: 66vh; /* 約 2/3 画面の目安 */
+}
+
+.varsel__panel {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 260px;
+}
+
+.varsel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.varsel__label {
+  color: #444444;
+  font-size: 12px;
+}
+
+.varsel__select {
+  background: #FFFFFF;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  min-width: 240px;
+}
+
+.varsel__items {
+  background: #FFFFFF;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  height: 100%;
+  min-height: 180px;
+  overflow: auto;
+  padding: 6px 8px;
+}
+
+.varsel__item {
+  align-items: center;
+  display: flex;
+  gap: 8px;
+  padding: 2px 4px;
+}
+
+.varsel__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.varsel__buttons {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  justify-content: center;
+}
+
+.varsel__side {
+  align-items: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.varsel__footer {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+/* ========================================= */
+/* DataTable editing styles (active cell, inline editor) */
+
+table.data-table td.active {
+  background: #F0F7FF;
+  outline: 2px solid #4C9FFE;
+  outline-offset: -2px;
+}
+
+/* ========================================= */
+/* Descriptive options */
+
+.option-group {
+  background: #FFFFFF;
+  border: 1px solid #DDDDDD;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 260px;
+  padding: 8px 10px;
+}
+
+.option-group legend {
+  color: #444444;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.option-group label.radio {
+  display: block;
+  margin: 4px 0;
+}
+
+.option-group input[type="radio"] {
+  margin-right: 6px;
+}
+
+/* ========================================= */
+/* Unified app button */
+
+.app-btn {
+  align-items: center;
+  display: inline-flex;
+  height: 38px; /* unify height across places */
+  padding: 0 16px; /* horizontal padding only to simplify width calc */
+  white-space: nowrap; /* prevent wrapping */
+}
+
+table.data-table td.active.editing {
+  background: #E6F2FF;
+}
+
+table.data-table input.cell-editor {
+  background: transparent;
+  border: none;
+  font: inherit;
+  outline: none;
+  width: 100%;
+}

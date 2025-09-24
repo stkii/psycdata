@@ -1,0 +1,14 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "beta",
+  "description": "Capability for the beta version",
+  "windows": ["table", "result", "panel"],
+  "permissions": [
+    "core:event:default",
+    "core:window:default",
+    "core:webview:allow-internal-toggle-devtools",
+    "core:webview:default",
+    "dialog:default",
+    "opener:default"
+  ]
+}
